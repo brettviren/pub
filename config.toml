@@ -10,8 +10,14 @@ title = "They call me Brett"
 # theme = "the-roots-home"
 
 
-# pygmentsStyle = "native"
+pygmentsStyle = "autumn"
 pygmentsCodeFences = true
+[markup]
+  [[highlight]]
+        noClasses=false
+        codeFences = true
+        style = 'manni'
+        tabWidth = 4
 
 [params]
     subtitle = "Turning neutrinos into bytes"
