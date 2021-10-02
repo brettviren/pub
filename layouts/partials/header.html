@@ -1,0 +1,28 @@
+<header>
+  <div style="float: left;">  
+  ▛{{ strings.Repeat ( .Site.Title | len | add 0 ) "▔" }}▜ <br>
+  ▌<a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>▐  <br>
+  </div>
+  <div style="float: right;">
+
+  ▌{{ .Site.Params.subtitle }}▐  <br>
+  ▙{{ strings.Repeat ( .Site.Params.subtitle | len | add 0 ) "▁" }}▟ 
+  </div>
+  <br/>
+  <hr>
+
+  <p>
+
+  <nav>
+    <div style="text-align: center;">
+    <a href="/"><b>Start</b></a>.
+    {{ with .Site.Menus.main }}
+    {{ range . }}
+    <a href="{{ .URL | relURL }}"><b>{{ .Name }}</b></a>.
+    {{ end }}
+    </div>
+  </nav>
+  </p>
+  </div>
+{{ end }}
+</header>

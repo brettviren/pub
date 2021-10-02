@@ -1,0 +1,70 @@
+#+title: Testing =ox-hugo=
+#+export_file_name: firstpost
+
+#+hugo_tags: test
+#+hugo_categories: testing
+#+hugo_publishdate: 2021-10-02
+#+hugo_auto_set_lastmod: t
+
+Here's some teaser.
+
+#+hugo: more
+
+In this test post I cover the following topics.
+
+#+toc: headlines 1
+
+* Section
+
+text text
+
+** Subsection
+
+more text
+
+* Plantuml
+
+#+begin_src plantuml :file testnode.svg :exports both
+@startuml
+class "Node" as n << type >> {
+        typeID
+        instanceID
+        schema
+        roles
+}
+class Role {
+        roleID
+        schema
+}
+"n" *- Role
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:testnode.svg]]
+
+* Jsonnet
+
+#+begin_src jsonnet :exports both :wrap "src json"
+{ a:42, b:"string", c:["array"] }
+#+end_src
+
+#+RESULTS:
+#+begin_src json
+{
+   "a": 42,
+   "b": "string",
+   "c": [
+      "array"
+   ]
+}
+#+end_src
+
+* C++
+#+begin_src cpp
+  // Convert to C++ type
+  T convert<T>(const Configuration& cfg);
+  // Get object attribute as C++ type
+  T get<T>(const Configuration& cfg, const std::string& name);
+  x = "foo"
+#+end_src

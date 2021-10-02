@@ -1,0 +1,61 @@
+baseURL = "http://brettviren.github.io/"
+languageCode = "en-us"
+title = "They call me Brett"
+
+# theme = "smol"
+# theme = "smigle"
+# theme = "archie"
+# modified version of archie
+# theme = "meathead"
+# theme = "the-roots-home"
+
+
+# pygmentsStyle = "native"
+pygmentsCodeFences = true
+
+[params]
+    subtitle = "Turning neutrinos into bytes"
+    author = "Brett Viren"  
+    dateFmt = "2021-10-01 12:00"
+
+[menu]
+  [[menu.main]]
+        identifier = "posts"
+        name = "Posts"
+        url = "/posts/"
+        weight = 1 
+
+  [[menu.main]]
+        identifier = "categories"
+        name = "Categories"
+        url = "/categories/"
+        weight = 2 
+
+  [[menu.main]]
+        identifier = "tags"
+        name = "Tags"
+        url = "/tags/"
+        weight = 3
+
+# Footer
+  [[menu.footer]]
+        name = "bv@bnl.gov"
+        url = "mailto:bv@bnl.gov"
+        weight = 1 
+  [[menu.footer]]
+        name = "brett.viren@gmail.com"
+        url = "mailto:brett.viren@gmail.com"
+        weight = 2
+  [[menu.footer]]
+        name = "github"
+        url = "https://github.com/brettviren"
+        weight = 3 
+  [[menu.footer]]
+        name = "keybase"
+        url = "https://keybase.io/BrettViren"
+        weight = 4
+
+
+
+
+
