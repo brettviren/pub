@@ -10,6 +10,9 @@ title = "They call me Brett"
 # theme = "the-roots-home"
 
 
+[markup.goldmark.renderer]
+  unsafe= true
+
 #pygmentsStyle = "autumn"
 #pygmentsStyle = "emacs"
 pygmentsStyle = "solarized-light"
@@ -21,12 +24,44 @@ pygmentsCodeFences = true
         tabWidth = 4
 
 [params]
-    subtitle = "Turning neutrinos into bytes"
+    subtitle = "Turning neutrinos to bytes"
     author = "Brett Viren"  
-#    dateFmt = "1970-01-01"
 #     dateFmt = "Mon Jan 2 2006"
      dateFmt = "Mon 2 Jan 2006"
 #     dateFmt = "2006-01-02"
+
+  [[params.social]]
+    url = "https://github.com/brettviren"
+    icon = "github"
+    name = "Github"
+  [[params.social]]
+        name = "bv@bnl.gov"
+        url = "mailto:bv@bnl.gov"
+        icon = "email"
+  [[params.social]]
+        name = "brett.viren@gmail.com"
+        url = "mailto:brett.viren@gmail.com"
+        icon = "email"
+  [[params.social]]
+        name = "keybase"
+        url = "https://keybase.io/BrettViren"
+        icon = "keybase"
+  [[params.social]]
+        name = "twitter"
+        url = "https://twitter.com/brett_viren"
+        icon = "twitter"
+
+  [[params.social]]
+        name = "fosstodon"
+        url = "https://fosstodon.org/@bv"
+        icon = "matrix"
+
+  # [[params.social]]
+  #       name = "matrix"
+  #       url = "matrix://@bv:matrix.org"
+  #       icon = "matrix"
+
+
 
 [menu]
   [[menu.main]]
@@ -64,8 +99,9 @@ pygmentsCodeFences = true
         name = "keybase"
         url = "https://keybase.io/BrettViren"
         weight = 4
-
-
-
+  [[menu.footer]]
+        name = "twitter"
+        url = "https://twitter.com/brett_viren"
+        weight = 5
 
 

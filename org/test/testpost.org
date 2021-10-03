@@ -6,14 +6,30 @@
 #+hugo_categories: testing
 #+hugo_publishdate: 2021-10-02
 #+hugo_auto_set_lastmod: t
+#+hugo_custom_front_matter: :math true
 
-Here's some teaser.
+
+Here's an initial /teaser/. 
+
 
 #+hugo: more
 
 In this test post I cover the following topics.
 
 #+toc: headlines 1
+
+* Math
+
+$$\varphi = 1+\frac{1} {1+\frac{1} {1+\frac{1} {1+\cdots} } }$$
+
+#+begin_example
+\[ \alpha\beta\gamma \]
+#+end_example
+
+gives:
+
+\[ \alpha\beta\gamma \]
+
 
 * Section
 
