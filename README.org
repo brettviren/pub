@@ -1,5 +1,7 @@
 #+title: Repository of public writings.
 
+Source here, online at https://brettviren.github.io/.
+
 * Edit
 
 Editable content under
