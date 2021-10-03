@@ -1,4 +1,4 @@
-#+title Repository of public writings.
+#+title: Repository of public writings.
 
 * Edit
 
