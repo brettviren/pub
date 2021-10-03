@@ -1,6 +1,7 @@
 #+title: Testing =ox-hugo=
 #+export_file_name: firstpost
 
+#+date: 2021-10-02
 #+hugo_tags: test
 #+hugo_categories: testing
 #+hugo_publishdate: 2021-10-02
