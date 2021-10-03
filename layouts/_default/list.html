@@ -8,19 +8,33 @@
   </div>
   {{ end }}
   
-  <ul>
+  <table>
     {{ range .Paginator.Pages }}
-    <li>
+    <tr>
       <div class="post-title">
         {{ if eq $listtitle "Posts" }}
-        {{ .Date.Format "2021-10-02" }} <a href="{{ .RelPermalink }}">{{.Title }}</a>
-        {{ else }}
+        <td>
         <a href="{{ .RelPermalink }}">{{.Title }}</a>
+        </td>
+        <td>
+        <b>{{ .Date.Format "2006-01-02" }}</b>
+        </td>
+        <td>
+        (last updated: {{ .Lastmod.Format "2006-01-02" }})
+        </td>
+        {{ else }}
+        <td>
+        <a href="{{ .RelPermalink }}">{{.Title }}</a>
+        </td>
+        <td>
+          {{ len .Pages }}
+        </td>
         {{ end }}
       </div>
-    </li>
+    </tr>
     {{ end }}
-  </ul>
-  {{ partial "pagination.html" . }}
+  </table>
+  {{ partial "pagination.html" . }}  
+
 </main>
 {{ end }}

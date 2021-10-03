@@ -17,6 +17,22 @@ body {
 }
 
 
+/* Headline Hashes */
+.headline-hash,
+.headline-hash:hover {
+    color:#586e75;
+    text-decoration: none;
+    font-size: 0.8em;
+    vertical-align: top;
+}
+.headline-hash:hover {
+    opacity: 0.75;
+}
+
+/*
+ This needs manual sync with the syntax highlighting
+ It is a best-effort match for languages not supported by chroma. 
+*/
 code[class^="language-"],code[class*=" language-"] {
     padding:5px;
     width:100%;

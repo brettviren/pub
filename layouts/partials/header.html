@@ -1,11 +1,17 @@
 <header>
     <div style="text-align: center;">
     {{- range .Site.Params.social }}
-    <a href="{{ .url }}"><img src="/icons/{{ .icon }}.svg"></a>
+    <a href="{{ .url }}"><img src="{{ .Site.BaseURL }}/icons/{{ .icon }}.svg">{{ .Site.BaseURL }}</a>
     {{- end }}
+
+  <!-- link to rss feed -->
+  {{ with .OutputFormats.Get "rss" -}}
+  {{ printf `<a href="%s" title="%s">` .Permalink $.Site.Title | safeHTML }}<img src="/icons/rss.svg"></a>
+  {{ end -}}
+
   </div>
   <div class="banner-left" style="float: left;">  
-    <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>  <br>
+    <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a> <br>
   </div>
   <div class="banner-right" style="float: right;">
     {{ .Site.Params.subtitle }} <br>
@@ -17,10 +23,9 @@
 
   <nav>
     <div style="text-align: center;">
-    <a href="/"><b>Start</b></a>.
     {{ with .Site.Menus.main }}
     {{ range . }}
-    <a href="{{ .URL | relURL }}"><b>{{ .Name }}</b></a>.
+    [<a href="{{ .URL | relURL }}"><b>{{ .Name }}</b></a>]
     {{ end }}
     </div>
   </nav>

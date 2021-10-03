@@ -1,8 +1,9 @@
 <article>
   <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
-  <b><time>{{ .Date.Format (default "2021-10-02 12:00" .Site.Params.dateFmt) }}</time></b>
+  <b><time>{{ .Date.Format (default "2006-01-02" .Site.Params.dateFmt) }}</time></b>
   {{ range .Params.tags }}
-  [<a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a>]
+  <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }} </a>
+  <img src="/icons/tag-12.svg">
   {{ end }}
   <div>
     {{ .Summary }}

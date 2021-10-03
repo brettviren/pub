@@ -4,8 +4,16 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
   {{ if or .Params.math .Site.Params.math }}
-    {{ partial "helpers/katex.html" . }}
+  <!-- LaTeX markup -->
+  {{ partial "helpers/katex.html" . }}
   {{ end }}
+
+  <!--  rss/atom feeds -->
+  {{ range .AlternativeOutputFormats -}}
+  {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
+  {{ end -}}
+
+
 
   <style type=text/css>body{font-family:monospace;}</style>
   <title>{{ .Title }}</title>

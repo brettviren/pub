@@ -1,0 +1,36 @@
+#+title Repository of public writings.
+
+* Edit
+
+Editable content under
+
+#+begin_example
+  org/<topic>/<topic>.org
+#+end_example
+
+The Hugo "categories" taxonomy is used to identify
+
+- About :: meta information about the site or myself
+- Blog :: largely one-time missives
+- Article :: more formal writing that may undergo changes over time
+
+While editing, this is useful
+
+#+begin_example
+  hugo server
+#+end_example
+
+* Deploy
+
+Everything under...
+
+- ~content/~
+- ~public/~
+
+...can be nuked at any time.
+
+Build to local web area and the github submodule
+
+#+begin_example
+  ./build.sh
+#+end_example

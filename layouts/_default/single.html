@@ -4,10 +4,11 @@
     <h1>{{ .Title }}</h1>
     <b><time>{{ .Date.Format  (default "2006-01-02" .Site.Params.dateFmt) }}</time></b>
     {{ range .Params.tags }}
-    [<a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a>]
+    <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a>
+    <img src="/icons/tag-12.svg">
     {{ end }}
     <div>
-      {{ .Content }}
+      {{ partial "headline-hash.html" .Content }}
     </div>
   </article>
 </main>

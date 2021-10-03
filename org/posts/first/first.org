@@ -1,20 +1,20 @@
-#+title: Testing =ox-hugo=
-#+export_file_name: firstpost
+#+title: First post
+
 
 #+date: 2021-10-02
-#+hugo_tags: test
-#+hugo_categories: testing
+#+hugo_tags: test math hugo org
+#+hugo_categories: Testing
 #+hugo_publishdate: 2021-10-02
 #+hugo_auto_set_lastmod: t
 #+hugo_custom_front_matter: :math true
 
 
-Here's an initial /teaser/. 
+A meaningless post to test ox-hugo and Hugo.
 
 
 #+hugo: more
 
-In this test post I cover the following topics.
+In this test post I cover the following topics shows as a ToC.
 
 #+toc: headlines 1
 

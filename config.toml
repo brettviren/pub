@@ -1,6 +1,18 @@
-baseURL = "http://brettviren.github.io/"
-languageCode = "en-us"
 title = "They call me Brett"
+languageCode = "en-us"
+
+### Can give:  hugo --baseURL <url> ...
+## Support any host if public/ is mapped to "/" URL
+baseURL = "/"
+## Or can explicitly give host part
+# baseURL = "http://brettviren.github.io/"
+## If one needs a URL path:
+# baseURL = "http://localhost/~bv/pub/"
+
+## Don't change these.  Need to canonify to support changing baseURL
+## to have some extra URL path.
+relativeURLs = false
+canonifyURLs = true
 
 # theme = "smol"
 # theme = "smigle"
@@ -24,7 +36,7 @@ pygmentsCodeFences = true
         tabWidth = 4
 
 [params]
-    subtitle = "Turning neutrinos to bytes"
+    subtitle = "turning neutrinos in to bytes"
     author = "Brett Viren"  
 #     dateFmt = "Mon Jan 2 2006"
      dateFmt = "Mon 2 Jan 2006"
@@ -65,22 +77,34 @@ pygmentsCodeFences = true
 
 [menu]
   [[menu.main]]
+        identifier = "about"
+        name = "About"
+        url = "/about/"
+        weight = 1 
+
+  [[menu.main]]
         identifier = "posts"
         name = "Posts"
         url = "/posts/"
-        weight = 1 
+        weight = 2
+
+  [[menu.main]]
+        identifier = "articles"
+        name = "Articles"
+        url = "/articles/"
+        weight = 3
 
   [[menu.main]]
         identifier = "categories"
         name = "Categories"
         url = "/categories/"
-        weight = 2 
+        weight = 4 
 
   [[menu.main]]
         identifier = "tags"
         name = "Tags"
         url = "/tags/"
-        weight = 3
+        weight = 5
 
 # Footer
   [[menu.footer]]

@@ -1,0 +1,55 @@
+#+title: About this site
+#+hugo_section: about
+
+#+date: 2021-10-02
+#+hugo_tags: test
+#+hugo_categories: About
+#+hugo_publishdate: 2021-10-02
+#+hugo_auto_set_lastmod: t
+#+hugo_custom_front_matter: :math false
+#+hugo_auto_set_lastmod: t
+
+
+In which I give the requisite grandiloquent soliloquy about how this
+site is made.
+
+#+hugo: more
+
+* Purpose and intent
+
+This is another in a long line of attempts to put on the web various
+bits of information I have written.
+
+* Organization
+
+Following Hugo nomenclature the site is organized first by /sections/:
+
+- [[file:/about/][about]] :: meta descriptions (ie, this page),
+- [[file:/posts/][posts]] :: blog entries unlikely to see updates,
+- [[file:/articles/][articles]] :: long form on a topic and potentially updated over time.
+
+All /pages/ in these sections may have one or more /category/ or /tag/.  In
+Hugo these are both /taxonomies/.  They are provided by Hugo with no
+assumed interpretation and so these are taken:
+
+- [[file:/categories/][categories]] :: limited number of general descriptors defined in a top-down manner
+- [[file:/tags/][tags]] :: numerous, unbound set of detailed descriptors defined in a bottom-up manner as pages are written. 
+
+* Tech
+
+This blog uses [[https://www.gnu.org/software/emacs/][GNU Emacs]] [[https://orgmode.org/][Org Mode]] with [[https://ox-hugo.scripter.co/][ox-hugo]] to make content for
+[[https://gohugo.io/][Hugo]].  See [[file:/articles/howido][howido]] if interested in details of my personal computing
+configuration.
+
+* Todo
+
+- [X] Basic RSS feeds, these are out-of-the-box
+
+- [X] Deploy to my github
+- [X] Deploy to local ~public_html~
+- [ ] Deploy to my BNL via rsync
+- [X] automate deployment
+
+- [ ] org mode capture templates
+- [X] per heading anchor links (as ripped from [[https://github.com/kaushalmodi/hugo-onyx-theme][hugo-onyx-theme]])
+
