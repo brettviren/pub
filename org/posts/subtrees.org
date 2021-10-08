@@ -1,0 +1,28 @@
+#+hugo_base_dir: ../
+#+hugo_section: ./
+#+hugo_weight: auto
+#+hugo_auto_set_lastmod: t
+
+#+author: Brett Viren
+
+* Tools                                                              :@tools:
+
+** TODO Attempt to bring Jsonnet to Babel ~ob-jsonnet.el~   :emacs:jsonent:org:
+:PROPERTIES:
+:EXPORT_FILE_NAME: ob-jsonnet
+:EXPORT_DATE: 
+:EXPORT_HUGO_MENU: :menu "main"
+:EXPORT_HUGO_CUSTOM_FRONT_MATTER: 
+:END:
+
+I made ~org-babel~ functions for Jsonnet and it was pretty easy!
+
+#+hugo: more
+
+*** topics
+
+- [ ] move to little github repo
+- [ ] how to set up
+- [ ] example usage right here
+  
+  
