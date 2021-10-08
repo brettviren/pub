@@ -1,5 +1,5 @@
-#+hugo_base_dir: ../
-#+hugo_section: ./
+#+hugo_base_dir: ../../
+#+hugo_section: posts/
 #+hugo_weight: auto
 #+hugo_auto_set_lastmod: t
 
@@ -7,22 +7,69 @@
 
 * Tools                                                              :@tools:
 
-** TODO Attempt to bring Jsonnet to Babel ~ob-jsonnet.el~   :emacs:jsonent:org:
+** DONE Babel in Jsonnet with ~ob-jsonnet.el~               :emacs:jsonnet:org:
+DEADLINE: <2021-10-08 Fri>
 :PROPERTIES:
 :EXPORT_FILE_NAME: ob-jsonnet
 :EXPORT_DATE: 
-:EXPORT_HUGO_MENU: :menu "main"
 :EXPORT_HUGO_CUSTOM_FRONT_MATTER: 
 :END:
 
-I made ~org-babel~ functions for Jsonnet and it was pretty easy!
+I made some ~org-babel~ functions for Jsonnet and it was pretty easy!
 
 #+hugo: more
 
-*** topics
+[[https://git.sr.ht/~bzg/worg/tree/master/item/org-contrib/babel/ob-template.el][ob-template.el]] is a great starting point and made for light work.
 
-- [ ] move to little github repo
-- [ ] how to set up
-- [ ] example usage right here
-  
-  
+*** Install
+
+Download [[https://raw.githubusercontent.com/brettviren/ob-jsonnet/master/ob-jsonnet.el][~ob-jsonnet.el~]] to somewhere in your load path and add
+
+#+begin_src lisp
+(require 'ob-jsonnet)
+#+end_src
+
+And append ~(jsonnet . t)~ to ~org-babel-load-languages~.
+
+You may customize ~org-babel-jsonnet-command~ if the ~jsonnet~ command is not in your ~$PATH~.
+
+*** Examples
+
+Basic usage
+
+#+begin_example
+  ,#+begin_src jsonnet :exports both :wrap "src json"
+  {a:42}
+  ,#+end_src
+#+end_example
+
+#+begin_src jsonnet :exports results :wrap "src json"
+{a:42}
+#+end_src
+
+#+RESULTS:
+#+begin_src json
+{
+   "a": 42
+}
+#+end_src
+
+You can also supply command line options:
+
+#+begin_example
+  ,#+begin_src jsonnet :cmdline "-S" :exports both :wrap "example"
+  std.join(" ", ["hello","world"])
+  ,#+end_src
+#+end_example
+
+#+begin_src jsonnet :cmdline "-S" :exports results :wrap "example"
+std.join(" ", ["hello","world"])
+#+end_src
+
+#+RESULTS:
+#+begin_example
+"hello world"
+#+end_example
+
+Now, if only we had proper syntax highlighting for Jsonnet in Hugo.
+
