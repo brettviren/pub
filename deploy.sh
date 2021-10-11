@@ -4,8 +4,11 @@ if [ -z "$msg" ] ; then
     msg="updates as of $(date)"
 fi
 
-hugo -D --baseURL http://localhost/~bv/ --destination ~/public_html/
-hugo -D --baseURL http://brettviren.github.io/ --destination github/
+if [ "$(hostname)" = "hokum" ] ; then
+    hugo -D --baseURL http://localhost/ --destination /var/www/html/
+fi
+hugo -D --baseURL https://brettviren.github.io/ --destination github/
+
 cd github/
 git add *
 git commit -am "$msg"
