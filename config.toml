@@ -38,14 +38,10 @@ pygmentsCodeFences = true
 [params]
     subtitle = "turning neutrinos in to bytes"
     author = "Brett Viren"  
-#     dateFmt = "Mon Jan 2 2006"
-     dateFmt = "Mon 2 Jan 2006"
-#     dateFmt = "2006-01-02"
+    dateFmt = "Mon 2 Jan 2006"
 
-  [[params.social]]
-    url = "https://github.com/brettviren"
-    icon = "github"
-    name = "Github"
+
+
   [[params.social]]
         name = "bv@bnl.gov"
         url = "mailto:bv@bnl.gov"
@@ -55,9 +51,17 @@ pygmentsCodeFences = true
         url = "mailto:brett.viren@gmail.com"
         icon = "email"
   [[params.social]]
-        name = "keybase"
-        url = "https://keybase.io/BrettViren"
-        icon = "keybase"
+        name = "work"
+        url = "https://www.phy.bnl.gov/~bviren/"
+        icon = "dollar-sign"
+  [[params.social]]
+    url = "https://github.com/brettviren"
+    icon = "github"
+    name = "Github"
+  # [[params.social]]
+  #       name = "keybase"
+  #       url = "https://keybase.io/BrettViren"
+  #       icon = "keybase"
   [[params.social]]
         name = "twitter"
         url = "https://twitter.com/brett_viren"
@@ -80,11 +84,11 @@ pygmentsCodeFences = true
         identifier = "about"
         name = "About"
         url = "/about/"
-        weight = 1 
+        weight = 6
 
   [[menu.main]]
         identifier = "posts"
-        name = "Posts"
+        name = "Blog"
         url = "/posts/"
         weight = 2
 
@@ -95,16 +99,22 @@ pygmentsCodeFences = true
         weight = 3
 
   [[menu.main]]
-        identifier = "categories"
-        name = "Categories"
-        url = "/categories/"
-        weight = 4 
+        identifier = "notes"
+        name = "Notes"
+        url = "/notes/"
+        weight = 3
 
-  [[menu.main]]
-        identifier = "tags"
-        name = "Tags"
-        url = "/tags/"
-        weight = 5
+  # [[menu.main]]
+  #       identifier = "categories"
+  #       name = "Categories"
+  #       url = "/categories/"
+  #       weight = 4 
+
+  # [[menu.main]]
+  #       identifier = "tags"
+  #       name = "Tags"
+  #       url = "/tags/"
+  #       weight = 5
 
 # Footer
   [[menu.footer]]

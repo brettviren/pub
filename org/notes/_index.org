@@ -1,0 +1,7 @@
+#+title: Notes
+#+date: 2021-10-02
+#+hugo_publishdate: 2021-10-10
+#+hugo_section: notes
+
+Here I summarize or merely mark some occurrences.  These are unlikely
+interesting to others.

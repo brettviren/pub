@@ -8,6 +8,17 @@
   </div>
   {{ end }}
   
+  <ul>
+    <li> tags:
+      {{ partial "tagcloud2.html"
+      (dict "context" . "tags" $.Site.Taxonomies.tags "Name" "tags") }}
+    </li>
+    <li> categories:    
+      {{ partial "tagcloud2.html"
+      (dict "context" . "tags" $.Site.Taxonomies.categories "Name" "categories") }}
+    </li>
+  </ul>
+
   {{ $lowertitle := .Title | lower }}
 
   {{- $paginator := .Paginate (where .Site.RegularPages "Type" $lowertitle) }}

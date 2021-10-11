@@ -1,0 +1,47 @@
+{{ define "main" }}
+<main>
+  {{ $listtitle := .Title }}
+  {{ if or .Title .Content }}
+  <div>
+    {{ with .Title }}<h1>{{ . }}</h1>{{ end }}
+    {{ with .Content }}<div>{{ . }}</div>{{ end }}
+  </div>
+  {{ end }}
+  
+  {{ if (eq .Title "Tags") }}
+  {{ partial "tagcloud.html" . }}  
+  {{ else if eq .Title "Categories" }}
+  {{ partial "tagcloud.html" . }}  
+  {{ else }}
+
+  <table>
+    {{ range .Paginator.Pages }}
+    <tr>
+      <div class="post-title">
+        {{ if eq $listtitle "Posts" }}
+        <td>
+        <a href="{{ .RelPermalink }}">{{.Title }}</a>
+        </td>
+        <td>
+        <b>{{ .Date.Format "2006-01-02" }}</b>
+        </td>
+        <td>
+        (last updated: {{ .Lastmod.Format "2006-01-02" }})
+        </td>
+        {{ else }}
+        <td>
+        <a href="{{ .RelPermalink }}">{{.Title }}</a>
+        </td>
+        <td>
+          {{ len .Pages }}
+        </td>
+        {{ end }}
+      </div>
+    </tr>
+    {{ end }}
+  </table>
+  {{ partial "pagination.html" . }}  
+
+  {{ end }}
+</main>
+{{ end }}

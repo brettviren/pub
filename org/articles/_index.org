@@ -1,0 +1,6 @@
+#+title: Articles
+#+date: 2021-10-02
+#+hugo_publishdate: 2021-10-10
+#+hugo_section: articles
+
+Long form write ups on various topics.

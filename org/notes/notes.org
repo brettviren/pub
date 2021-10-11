@@ -1,0 +1,22 @@
+#+hugo_base_dir: ../../
+#+hugo_section: notes/
+#+hugo_weight: auto
+#+hugo_auto_set_lastmod: t
+
+#+author: Brett Viren
+
+
+
+* Old test note
+:PROPERTIES:
+:EXPORT_FILE_NAME: 2017-12-09
+:EXPORT_DATE: 
+:EXPORT_HUGO_CUSTOM_FRONT_MATTER: 
+:END:
+
+
+Some other junk.
+
+#+hugo: more
+
+Now comes the beep.

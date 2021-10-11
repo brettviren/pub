@@ -5,6 +5,8 @@
 
 #+author: Brett Viren
 
+* Ideas                                                              :@ideas:
+
 * Tools                                                              :@tools:
 
 ** DONE Babel in Jsonnet with ~ob-jsonnet.el~               :emacs:jsonnet:org:
