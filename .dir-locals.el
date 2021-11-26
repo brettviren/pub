@@ -3,5 +3,5 @@
 
 (("org/"
   . ((org-mode . (
-                  (org-hugo-base-dir . "~/pub")
+                  (org-hugo-base-dir . "~/pub/")
                   (eval . (org-hugo-auto-export-mode)))))))

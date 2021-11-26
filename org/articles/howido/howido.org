@@ -10,7 +10,7 @@
 #+hugo_auto_set_lastmod: t
 
 
-Sometimes people ask how I do things digitally.  They can read this.
+Sometimes people ask me how I do things digitally.  They can read this.
 
 #+hugo: more
 
@@ -23,7 +23,9 @@ Sometimes people ask how I do things digitally.  They can read this.
 
 This document provides a view into how I use computers with a focus on software.  It is organized into major software categories with subsections for each important package.
 
-It also serves as notebook of documentation to remind me of some details.  Expect some incomplete sections and to see changes over time.
+It also serves as notebook of documentation to remind me of some details.  Expect some incomplete sections and to see changes over time.  
+
+The extensive configuration files are not available but I have some intention to rectify that at some point.
 
 ** Typography
    :PROPERTIES:
@@ -34,8 +36,11 @@ In this document, the prompts used in examples are as:
 
 #+begin_example
   # command run as root
-  $ command run as user
+  $ command run as user in bash
+  ❯ command run as user in fish
 #+end_example
+
+A ~command~ is written like that.
 
 ** Hardware
    :PROPERTIES:
@@ -58,11 +63,11 @@ For the last one, I maintain a dynamic DNS subdomain from the great folks at [[h
   :CUSTOM_ID: 2021-02-09-Configuration
   :END:
 
-Configuration is stored in a private [[https://gitea.io/][Gitea]] and most clones are managed with [[https://github.com/RichiH/vcsh][vcsh]] and [[https://myrepos.branchable.com/][myrepos]] with [[https://www.passwordstore.org/][pass]] managing its own.
+Configuration files ("dotfiles") are stored in a private [[https://gitea.io/][Gitea]] instance and most clones are managed with [[https://github.com/RichiH/vcsh][vcsh]] and [[https://myrepos.branchable.com/][myrepos]] with [[https://www.passwordstore.org/][pass]] and etckeeper managing its own.
 
-The vcsh git repo manager allows multiple git repos to supply files into ~$HOME~ without any actual ~.git/~ directory there.  It allows for the target filesystem space to be interleaved with files managed in separate git repos.  Seems crazy, works great.
+The ~vcsh~ ~git~ repo manager allows multiple ~git~ repos to supply files into ~$HOME~ without any actual ~.git/~ directory there.  It allows for the target filesystem space to be interleaved with files managed in separate git repos.  Seems crazy, works great.
 
-My ~vcsh~ repos include config for: bash, bbdb, emacs, git, mr (myrepos), nixpkgs, sawfish, scripts, ssh, systemd, tmux, weechat.  Some of these are described in other sections but first how ~vcsh~ is handled.
+My ~vcsh~ repos include config for: +bash, bbdb, emacs, git, mr (myrepos), nixpkgs, sawfish, scripts, ssh, systemd, tmux, weechat+ bbdb for contacts in BBDB and a consolidated "dots" for all the dot files.  I started with many fine-grained repos and mr to help do bootstrap but this was more work with no perceived benefit.  I kept bbdb separate as one day I may make the "dots" repo public.  Some setup of individual things are described in following sections but first how ~vcsh~ is handled.
 
 ** Initialize
    :PROPERTIES:
@@ -104,29 +109,12 @@ A new account can clone individual repos:
   $ vcsh clone gogs@homeserver:bv/dot-bbdb.git bbdb
 #+end_example
 
-This gets tedious and it's where ~myrepos~ (~mr~) comes in.
-
-#+BEGIN_EXAMPLE
-  $ vcsh clone gogs@haiku:bv/dot-myrepos.git mr
-  $ cd .config/mr/config.d/
-  $ ln -sf ../available.d/* . 
-  $ cd 
-  $ mr up
-#+END_EXAMPLE
-
-An example ~mr~ config looks like:
-
-#+BEGIN_EXAMPLE
-  [$HOME/.config/vcsh/repo.d/emacs.git]
-  checkout = vcsh clone gogs@bandyv.us.to:bv/dot-emacs.git emacs
-#+END_EXAMPLE
-
 ** Ignoring
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-Ignoring
    :END:
 
-Any git command run through =vcsh= uses =$HOME= as the Git working dir.
+Any ~git~ command run through =vcsh= uses =$HOME= as the Git working dir.
 
 #+BEGIN_EXAMPLE
   $ vcsh bbdb status
@@ -151,16 +139,28 @@ The =write-gitignore= command will create a file like:
   !/.bbdb
 #+END_EXAMPLE
 
+In the case of sub-directories of interest which exist among siblings to ignore one has to add exhaustive paths to the allow list.  For example, 
+
+#+begin_example
+  ,*
+  !/.local
+  !/.local/share
+  !/.local/share/applications
+  !/.local/share/applications/*.desktop
+#+end_example
+
 ** Making updates
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-Making-updates
    :END:
 
+Here we make a change to the omnibus dots package
+
 #+BEGIN_EXAMPLE
-  $ emacs .bash/completion/vcsh
-  $ vcsh bash add -f .bash/completion/vcsh
-  $ vcsh bash commit -a -m "Add vcsh completion for bash."
-  $ vcsh bash push
+  ❯ emacs -nw .config/kitty/(hostname).conf
+  ❯ vcsh dots add .config/kitty/(hostname).conf
+  ❯ vcsh dots commit -am "customize for "(hostname)
+  ❯ vcsh dots push
 #+END_EXAMPLE
 
 ** Applying updates
@@ -168,16 +168,9 @@ The =write-gitignore= command will create a file like:
    :CUSTOM_ID: 2021-02-09-Applying-updates
    :END:
 
-From each account:
-
 #+begin_example
-  $ mr up
-#+end_example
-
-or, more usually
-
-#+begin_example
-  $ vcsh pull
+  ❯ vcsh dots pull
+  ❯ vcsh pull  # en masse
 #+end_example
 
 
@@ -186,30 +179,20 @@ or, more usually
    :CUSTOM_ID: 2021-02-09-Checking-for-updates
    :END:
 
-I want my prompt to tell me when a local account has modified, is
-behind the remote vcsh or ahead of it (made a commit but not push).
-To check the remote takes time and also needs SSH credentials.  Here's
-how I get this bundle of functionality:
-
-- ~vcsh-extra~ :: a script with command ~hooks~, ~probe~ and ~cron~ which
-  calls both.  
+I want my prompt to tell me when a local account has modified, is behind the remote ~vcsh~ or ahead of it (made a commit but not push).  To check the remote takes time and also needs SSH credentials.  The functionality is in [[~/scripts/vcsh-extra][vcsh-extra]] with commands ~hooks~, ~probe~ and ~cron~ which call both and ~fetch~.  
 
 - fetch :: the ~fetch~ command simply does a:
 
-#+begin_src shell
+#+begin_src 
 vcsh foreach fetch
 #+end_src
 
-- probe :: the ~probe~ command will run ~vcsh status --terse~ and parse it
-  for state to touch files ~last-{ahead,behind,modified}~ (removing any
-  stale ones).
+- probe :: the ~probe~ command will run ~vcsh status --terse~ and parse it for state to touch files ~last-{ahead,behind,modified}~ (removing any stale ones).
 
-- hooks :: the ~hooks~ command install vcsh hooks which will run the
-  ~probe~ command named after an action.  Ie in:
-  ~post-{pull,push,commit,enter,run}~ is:
+- hooks :: the ~hooks~ command install vcsh hooks which will run the ~probe~ command named after an action.  Ie in: ~post-{pull,push,commit,enter,run}~ is:
 
-#+begin_src shell
-$HOME/scripts/vcsh-extra probe
+#+begin_src 
+vcsh-extra probe
 #+end_src
 
 - cron :: the ~cron~ command bundles calls the three commands in sequence after 
@@ -218,23 +201,22 @@ $HOME/scripts/vcsh-extra probe
 eval $(keychain --quiet --noask --eval id_rsa)
 #+end_src
 
-In summary, the cron job runs once per hour, fetching but not applying
-any changes and doing the ~probe~ to summarize what state that leaves
-the local ~vcsh~ repositories.
+In summary, the cron job runs once per hour, fetching but not applying any changes and doing the ~probe~ to summarize what state that leaves the local ~vcsh~ repositories.
 
-When doing ~vcsh~ commands the hooks run to repeat the ~probe~ (which is
-fast enough).
+When doing ~vcsh~ commands the hooks run to repeat the ~probe~ (which is fast enough).
 
-Finally, the Bash ~PROMPT_COMMAND~ will check for the existence
-~last-{ahead,behind,modified}~ files and prepend a little marker to the
-prompt.  If all three types of "dirty" occur, the prompt looks like:
+** Noticing changes
+
+In the shell prompts I add an indicator of the vcsh state.
+
+For ~bash~ the ~PROMPT_COMMAND~ will check for the existence ~last-{ahead,behind,modified}~ files and prepend a little marker to the prompt.  If all three types of "dirty" occur, the prompt looks like:
 
 #+begin_example
 {ABM}bv@hal:~
 $ 
 #+end_example
 
-
+For ~fish~, a ~_tide_item_vcsh()~ function is defined to do similar.
 
 
 * Editor
@@ -247,29 +229,18 @@ $
    :CUSTOM_ID: 2021-02-09-Emacs
    :END:
 
-I use Emacs for Email (GNUS), Contacts (BBDB), software development,
-document and presentation production (orgmode and LaTeX), bookmark
-management (~org-protocol~ and ~org-capture~) and web form text entry
-(~atomic-chrome~).  Emacs 27 is soon to be released but I can't wait
-so I build it from source (see [[Source]]).  It now allows
-~XDG_CONFIG_HOME~ which I make use of by *conceptually* doing:
+I use Emacs for Email (GNUS), Contacts (BBDB), software development, document and presentation production (orgmode and LaTeX), bookmark management (~org-protocol~ and ~org-capture~) and web form text entry (~atomic-chrome~).  Emacs 27 is soon to be released but I can't wait so I build it from source (see [[Source]]).  It now allows ~XDG_CONFIG_HOME~ which I make use of by *conceptually* doing:
 
 #+begin_example
   $ rm -rf .emacs*
   $ mkdir .config/emacs
 #+end_example
 
-Typing ~emacs~ then uses ~$XDG_CONFIG_HOME/emacs/init.el~.  There's
-lots of fashionable ways to configure ~init.el~.  I don't follow then
-except to break up the config into many ~init-*.el~ and ~(require)~
-them in a big list.  
+Typing ~emacs~ then uses ~$XDG_CONFIG_HOME/emacs/init.el~.  There's lots of fashionable ways to configure ~init.el~.  I don't follow then except to break up the config into many ~init-*.el~ and ~(require)~ them in a big list.
 
 *** Emacs packages
 
-I heavily use [[https://github.com/jwiegley/use-package][use-package]] and in two modes.  I
-want the ability to blow away any ~emacs.d/elpa/~ area and rebuild it
-any time but normally don't want to spend the extra load time to query
-for package state.  This is in ~init-package.el~:
+I heavily use [[https://github.com/jwiegley/use-package][use-package]] and in two modes.  I want the ability to blow away any ~emacs.d/elpa/~ area and rebuild it any time but normally don't want to spend the extra load time to query for package state.  This is in ~init-package.el~:
 
 #+begin_src elisp
 (require 'package)
@@ -330,7 +301,7 @@ I then may select a configuration on the command line like:
 
 *** GNUS/BBDB
 
-*** LSP
+t.b.d.
 
 *** Emacs servers
 
@@ -341,8 +312,7 @@ To support bookmark capture (Firefox + org-protocol + a script) and text entry e
   @reboot supervisord -c /home/bv/scripts/supervisor.conf
 #+end_example
 
-That =~/scripts/~ directory is in ~vcsh~.  The two Emacs servers are
-started like:
+That =~/scripts/~ directory is in ~vcsh~.  The two Emacs servers are started like:
 
 #+begin_example
 [program:emacs-capture]
@@ -391,56 +361,59 @@ I've tried many terminals over the years and for about the last year I have been
 - ~C-S-h~ to load scrollback into ~less~
 - fast, beautiful text, Free Software 
 
-It also has sub-programs called "kittens" such as ~kitten icat
-foo.png~ to show a graphic in the terminal.  Or ~kitten diff~ to show
-a pretty side-by-side diff.  These are nice but I rarely use them.
+It also has sub-programs called "kittens" such as ~kitten icat foo.png~ to show a graphic in the terminal.  Or ~kitten diff~ to show a pretty side-by-side diff.  These are nice but I rarely use them.
 
-Here is install:
+Here is an install command:
 
 #+begin_example
-python3 setup.py --prefix=/usr/local/stow/kitty-0.19.3 linux-package                                               
-
+python3 setup.py --prefix=/usr/local/stow/kitty-0.19.3 linux-package
 #+end_example
 
 See [[https://sw.kovidgoyal.net/kitty/build.html][kitty build instructions]] and [[Stow]] for more info.
 
-
-No longer but in the past, I built and ran Kitty directly from source:
-
-#+begin_example
-  $ cd dev/kitty
-  $ git pull
-  $ git checkout vX.Y.Z
-  $ make
-#+end_example
-
-Then, run the result directly from the source:
+No particularly fancy config.  It lives in ~.config/kitty/kitty.conf~ and ends with:
 
 #+begin_example
-  $ cat bin/kitty 
-  #!/usr/bin/env python3
-  import runpy
-  runpy.run_path('/home/bv/dev/kitty', run_name='__main__')
+include local.conf
 #+end_example
 
-No particularly fancy config (lives in ~.config/kitty/kitty.conf~).
+And that file is made locally, once per account:
 
+#+begin_example
+  ❯ ln -sf ~/.config/kitty/{(hostname),local}.conf
+#+end_example
+
+I start ~weechat~ in a special kitty:
+
+#+begin_example
+  ❯ kitty -o 'map kitty_mod+e kitten hints --customize-processing weechat_hints.py' weechat
+#+end_example
+
+Where that Python script is from [[gh:GermainZ/kitty-weechat-hints]].  I can then give ~C-S-e~ to kitty followed a number matching one of the found URLs to open.  The ~weechat_hints.py~ does the heavy lifting to form the URL in the face of possible line splitting by weechat.
+
+I tell ~kitty~ to open URLs or other hyperlinks via:
+
+#+begin_example
+open_url_with kitty-open
+#+end_example
+
+Which merely redirects to my personal ~open~ command, described below.
 
 * Shells
   :PROPERTIES:
   :CUSTOM_ID: 2021-02-09-Command-shell
   :END:
 
-I have moved my main account on ~hometop~ and ~homestation~ to the Fish shell but have long and still use Bash on other accounts.  In Fish accounts I will sometimes still start Bash to do some complex command which I've yet to master in Fish.  In this mixed environment it is sometimes necessary to explicitly set ~SHELL~ to either ~fish~ or ~bash~.
+I have moved to the ~fish~ shell but have been a long time and still sometimes user of ~bash~.  From ~fish~ sessions I will sometimes still start ~bash~ to do some complex command which I've yet to master in ~fish~.  In this mixed environment it is sometimes necessary to explicitly set ~SHELL~ to either ~fish~ or ~bash~ as some commands are sensitive to the value.
 
 ** Fish
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-Fish
    :END:
 
-Fish is a really amazing shell which requires very little configuration to make it "feel right".  Here are a few things I do with fish.
+Fish is a really amazing shell which requires very little configuration to make it "feel right" (unlike ~bash~).  Here are a few things I do with fish.
 
-I use the [[https://github.com/IlanCosman/tide][tide]] prompt which is very nice, easy and popular.  Amazingly, it is as I like it out of the box and I do very little customization.  
+I use the [[https://github.com/IlanCosman/tide][tide]] prompt which is very nice, easy and popular.  Amazingly, it is as I like it out of the box and I do very little customization.  The ~vcsh~ customization described above is one exception.
 
 I use this ~fzf~ / Fish integration:
 
@@ -462,72 +435,110 @@ To use ~direnv~ I add per docs, ~conf.d/direnv.fish~ with
   eval (direnv hook fish)
 #+end_src
 
-When I started learning Fish, I ported my shell implemenation [[https://github.com/brettviren/shist][shist]] of [[https://github.com/barabo/advanced-shell-history][ash]] to  [[https://github.com/brettviren/fishql][fishql]].  This gave a nice vehicle to dive into Fish programming.  However, I've stopped using it due to some quoting problem and because I find I almost never actually use the SQL query functionality.
+When I started learning Fish, I ported my shell implemenation [[https://github.com/brettviren/shist][shist]] of [[https://github.com/barabo/advanced-shell-history][ash]] to  [[https://github.com/brettviren/fishql][fishql]].  This gave a nice vehicle to dive into Fish programming.  However, I've stopped using it because I find I almost never actually use the SQL query functionality.
+
+As ~kitty~ has support for ~ls --hyperlink~ I modify fish's ~ls~ command to add it.  I did not see a "right" way to do this so I copied ~ls.fish~ from a recent install to ~.config/fish/functions/ls.fish~ and added a ~__fish_ls_opts~ variable to the final command call and then run
+
+#+begin_example
+❯ set -U __fish_ls_opts --hyperlink=auto
+#+end_example
+
+This now gives me the dubious pleasure of clicking on Kitty's rendering of the ~ls~ command and having ~open~ handle that.  More on opening files below.
 
 ** Bash
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-Bash
    :END:
 
-Though I am moving to Fish, I keep my Bash setup alive as I sometimes will start Bash in my Fish accounts and still have some accounts not yet moved to Fish. 
+Though I have moved to ~fish~, I keep my ~bash~ setup alive as I sometimes will start ~bash~ from a ~fish~ session.
 
-My ~.bashrc~ is run for login or subshells.  It delegates
-configuration to scripts under
-~/.bash/{functions,variables,apps}/*.sh~ and "mounts" some git subtrees under ~/.bash/subtrees~.  
+My ~.bashrc~ is run for login or subshells.  It delegates configuration to scripts under ~/.bash/{functions,variables,apps}/*.sh~ and "mounts" some git subtrees under ~/.bash/subtrees~.
 
 One subtree of note is [[https://github.com/brettviren/shist][shist]] which is my Bash implementation of [[https://github.com/barabo/advanced-shell-history][advanced shell history]].  This integrates with Bash prompting to record history in an Sqlite3 database.
 
 I strongly avoid using ~alias~ (eg, no ~ll~ for ~ls -l~) as I think inventing my own Unix command set is an anti-pattern.  I do capture some larger commands in Bash functions so that tab-completion can remind me of the (eg, a bunch of ~emacs-server-*~ functions to manage different Emacs servers).
 
-I used to loop over ~$HOME/opt/*/{bin,lib,man,lib/pkgconfig}~ to set ~PATH, LD_LIBRARY_PATH, MANPATH, PKG_CONFIG_PATH~.  This I now deprecate in favor of a Stow-based install for common software and a per-development area governed by ~direnv~.
-See [[Source]] for more info on this aspect.
+I used to loop over ~$HOME/opt/*/{bin,lib,man,lib/pkgconfig}~ to set ~PATH, LD_LIBRARY_PATH, MANPATH, PKG_CONFIG_PATH~.  This I now deprecate in favor of a Stow-based install for common software and a per-development area governed by ~direnv~.  See [[Source]] for more info on this aspect.
 
-
-
-* Desktop
+* Desktop Environment
   :PROPERTIES:
   :CUSTOM_ID: 2021-02-09-Desktop
   :END:
 
 By which I mean what the X11 (and not wayland) server manages.
 
-I'm in the process of migrating from Sawfish to Herbsluftwm.  I've used Sawfish since it was the official Gnome WM back in the 90's (back before Gnome put sugar before protein).  Sawfish is really a terrific stacking/floating WM but I wanted to move to a tiling paradigm.  Sawfish has some rudimentary support for tiling and I initially toyed with adding more but figured I should first try some "real" tiling WMs.  Along came Herbsluftwm which I chose over the others because it had nice graph diagrams right in the man page.  I've since looked at others (awesome, i3, dwm) and they are nice but I got lucky on the first draw and have fallen deeply for it.  So, I bid Sawfish a fond farewell and wish the community all the best (there are tens of us!).
+I have fully migrated from the really great Sawfish to the equally delightful though different Herbsluftwm.  I've used Sawfish since it was the official Gnome WM back in the 90's (back before Gnome put sugar before protein).  Sawfish is really a terrific stacking/floating WM but I wanted to move to a tiling paradigm.  Sawfish has some rudimentary support for tiling and I initially toyed with contributing to its development but figured I should first try some "real" tiling WMs.  Along came Herbsluftwm which I chose over the others initially because it had these nice graph diagrams right in the man page.  I've since looked at others (awesome, i3, dwm) and they are nice but I got lucky on the first draw and have fallen deeply for it.  So, I bid Sawfish a fond farewell and wish the community all the best (there are tens of us!).
 
 ** Herbsluftwm
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-Herbsluftwm
    :END:
 
-Herbsluftwm [German for autumn wind(ow manager)] is configured by issuing commands from the client application ~herbstclient~ (~hc~).  These commands are typically captured in two files:
+Herbstluftwm [German for autumn wind(ow manager)] is configured by issuing commands from the client application ~herbstclient~ (~hc~).  These commands are typically captured in two files:
 
 - ~autostart~ :: main configuration holding keybindings, theme settings and starting any "panels"
-- ~panel.sh~ :: a long running process transforming WM events (via ~hc --idel~) and others into input piped to a "bar" program (~dzen2~ is common)
-
-Both of these are typically found at =~/.config/herbstluftwm/=.
+- ~panel.sh~ :: a long running process transforming WM events (via ~hc --idel~) and others into input piped to a "bar" program (~dzen2~ is default and nice but I moved to using ~barpyrus~ which is started directly instead of a ~panel.sh~)
 
 A lot of great shell hackery exists in this space including the default event-driven ~panel.sh~ which taught me a thing or three.   But, I wanted to rely on something more "formal" so created [[https://brettviren.github.io/herbie][herbie]].  It contains Python reimplementations of a lot of Herbsluftwm community shell hackery as well as a few new things.  It's documentation describes how to configure and integrate into ~autostart~.
 
+** Barpyrus
+
+Also from author of herbstluftm, this provies a Python wrapper around lemonbar and replaces the default ~panel.sh~ driving ~dzen~.  It is configured with Python and my config is hugely inspired by ~barpyrus.py~ from [[gh:the-compiler/dotfiles]].  My minor improvement was to add some unicode icons and a few additional metrics.  
+
+Setting the fonts is an important detail.  In ~main()~:
+
+#+begin_src python
+  bar = lemonbar.Lemonbar(
+      geometry=geom,
+      cmd="/usr/local/bin/lemonbar",
+      font=f'DejaVu Sans-{font_height}',
+      symbol_font=f'FantasqueSansMono Nerd Font-{font_height}',
+      foreground=Gruv.FG, background=Gruv.BG)
+#+end_src
+
+Where ~font_height~ is determined based on host and monitor size.  Toward the top of ~main()~:
+
+#+begin_src python
+  import socket
+  host = socket.getfqdn()
+  monitor = int(sys.argv[1]) if len(sys.argv) >= 2 else 0
+  x, y, monitor_w, monitor_h = hc.monitor_rect(monitor)
+  if int(monitor_h) <= 1080:
+      height = 16
+      font_height = 12
+  elif host == "hometop":
+      height = 24
+      font_height = 12
+  elif ...
+#+end_src
 
 ** Rofi
 
-My ~herbie~ speaks through ~rofi~  in many cases and ~rofi~ is used directly for some.
+I use ~rofi~ for various things.  ~herbie~ calls it and is called by it and it is called by various ~herbstluftwm~ keybindings.
+
 
 - ~rofi-screenshot~ custom script to take screen shots and optionally upload them to a popular image host with help of ~maim~ and ~rephile~.  See [[Photos]].
 - [[https://github.com/carnager/rofi-pass][~rofi-pass~]] for accessing my password store (see [[Passwords]])
+- built in launcher with nice icons
+- global and per tag window selection
+- herbstluftwm "task based" tag management via herbie
+- herbstluftwm tag layout management via herbie
+
+Like with ~kitty~, a =~/.config/rofi/config-(hostname).rasi= file which is symlinked to ~config-host.rasi~ holds the per host customization.  Mostly this is to set a font size that works well for the host's monitor(s).  For example, for a 4k 15" laptop monitor screen.
+
+#+begin_example
+configuration {
+  font: "FantasqueSansMono Nerd Font 44";
+}
+#+end_example
+
 
 ** Sawfish
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-Sawfish
    :END:
 
-The Sawfish X11 window manager was at one time the official WM for
-Gnome.  That is the time when I first started using it, moving from
-TWM and then FVWM.  I've tried a few since but always come back.
-Sawfish is configured and largely written in its own flavor of lisp
-([[https://sawfish.fandom.com/wiki/Librep][rep]]) and so can reasonably be considered the Emacs of window
-managers.  For configuration, it does an even better job than Emacs of
-providing both a programmable and a GUI configuration method and the
-two work largely well together.  Some of the reasons I use Sawfish:
+The Sawfish X11 window manager was at one time the official WM for Gnome.  That is the time when I first started using it, moving from TWM and then FVWM.  I've tried a few since but always come back.  Sawfish is configured and largely written in its own flavor of lisp ([[https://sawfish.fandom.com/wiki/Librep][rep]]) and so can reasonably be considered the Emacs of window managers.  For configuration, it does an even better job than Emacs of providing both a programmable and a GUI configuration method and the two work largely well together.  Some of the reasons I use Sawfish:
 
 - hugely configurable but sane defaults
 - my fingers have learned the key bindings I chose years (decades!) ago
@@ -540,36 +551,32 @@ two work largely well together.  Some of the reasons I use Sawfish:
 
 ** Desktop environment
 
-I largely have moved away from using a full DE.  I have MATE (Gnome 2) in with Sawfish on some computers but been replacing MATE panel and menus with dzen2 and rofi.
+I largely have moved away from using a full DE.  I used MATE (Gnome 2) with Sawfish up until switching to Herbstluftwm.  All the MATE-provided bits now get replaced piecemeal.  Some of note:
+
+- ~rofi~ for starting apps and various other menu-oriented actions
+- ~barpyrus~ for indicators and "workspace" tabs (Herbstluftwm "tags")
+- ~nmtui~ replaces the Network Manager applet
+- ~caja~ I still keep around for rare times I want a GUI to browse a directory
 
 * Web
   :PROPERTIES:
   :CUSTOM_ID: 2021-02-09-Web
   :END:
 
-
 ** Firefox
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-Firefox
    :END:
 
-Firefox is the least worse web browser despite how Mozilla tries so
-hard to kill off its user base.  Not much to say except how I battle
-some of its worse behavior:
+Firefox is the least worse web browser despite how Mozilla tries so hard to kill off its user base.  Not much to say except how I battle some of its worse behavior:
 
 *** Load URL via remote without grabbing attention
 
-Set ~browser.tabs.loadDivertedInBackground~ to ~true~ in
-~about:config~.  Otherwise sending a URL via remote open will have
-Firefox grab focus, possibly switching to it on a different virtual
-desktop.  This is super annoying when doing important things like
-loading the morning's web comics from ~liferea~.
+Set ~browser.tabs.loadDivertedInBackground~ to ~true~ in ~about:config~.  Otherwise sending a URL via remote open will have Firefox grab focus, possibly switching to it on a different virtual desktop.  This is super annoying when doing important things like loading the morning's web comics from ~liferea~.
 
 *** Emacs-like keybindings in firefox 
 
-This is one of the most frustrating things and most of the things
-found online are wrong.  What to do depends on the desktop environment
-*and* its version *and* maybe the distribution.
+This is one of the most frustrating things and most of the things found online are wrong.  What to do depends on the desktop environment *and* its version *and* maybe the distribution.
 
 Debian ~buster~ and MATE 1.20.
 
@@ -597,14 +604,9 @@ devtools.editor.keymap emacs
 
 *** Using Emacs to edit text
 
-There used to be ItsAllText.  Now there is [[https://addons.mozilla.org/en-US/firefox/addon/edit-with-emacs1/][Edit with Emacs]] and
-[[https://addons.mozilla.org/en-US/firefox/addon/ghosttext/][GhostText]].  The former I could not make work and the latter seems
-fine.
+There used to be ItsAllText.  Now there is [[https://addons.mozilla.org/en-US/firefox/addon/edit-with-emacs1/][Edit with Emacs]] and [[https://addons.mozilla.org/en-US/firefox/addon/ghosttext/][GhostText]].  The former I could not make work and the latter seems fine.
 
-GhostText needs ~atomic-chrome~ to be running on Emacs.  It's
-available from the Emacs package sites.  In [[Emacs servers]] I describe
-how the Emacs server for atomic-chrome to talk to get started.  The
-main Emacs parts in ~init-atomic-chrome.el~ are:
+GhostText needs ~atomic-chrome~ to be running on Emacs.  It's available from the Emacs package sites.  In [[Emacs servers]] I describe how the Emacs server for atomic-chrome to talk to get started.  The main Emacs parts in ~init-atomic-chrome.el~ are:
 
 #+begin_src elisp
   (setq server-name "atomic-chrome")
@@ -627,15 +629,15 @@ main Emacs parts in ~init-atomic-chrome.el~ are:
   (atomic-chrome-start-server)
 #+end_src
 
-To use, I click the GhostText icon, sometimes it prompts me for which
-text area to edit, then an Emacs frame pops us.  As I type in Emacs
-the text entry updates.
+To use, I click the GhostText icon, sometimes it prompts me for which text area to edit, then an Emacs frame pops us.  As I type in Emacs the text entry updates.
 
 **** TODO get nice rendered preview for GitHub and Reddit text entries
 
 *** Bookmark capture
 
-The ~emacs-capture~ and Emacs server "capture" is described above.  On the Firefox end I need a bookmarklet:
+I want to capture bookmarks to Emacs Org files.  I mainly use [[gh:karlicoss/grasp]] for that.  It uses a Firefox add-on to send info to a grasp server written in Python.  The add-on does a better job actually working on all sites (eg, GitHub causes problems with ~org-protocol~ described below).  While this is an Emacs-free capture system, the resulting files are in good org-mode markup.
+
+The other method I tried is with a Firefox bookmarklet to initiate ~org-protocol~ based capture:
 
 #+begin_example
 javascript:location.href='org-protocol://capture://w/'+encodeURIComponent(location.href)+'/'+encodeURIComponent(document.title)+'/'+encodeURIComponent(window.getSelection())
@@ -677,6 +679,46 @@ The web is mostly festering garbage and getting worse over time.  Many web sites
 javascript:(function()%7B(function%20()%20%7Bvar%20i%2C%20elements%20%3D%20document.querySelectorAll('body%20*')%3Bfor%20(i%20%3D%200%3B%20i%20%3C%20elements.length%3B%20i%2B%2B)%20%7Bif%20(getComputedStyle(elements%5Bi%5D).position%20%3D%3D%3D%20'fixed')%20%7Belements%5Bi%5D.parentNode.removeChild(elements%5Bi%5D)%3B%7D%7D%7D)()%7D)()
 #+end_example
 
+*** Click is not select all
+
+One of the more infuriating things which changed in somewhat recent
+Firefox versions is that clicking on the urlbar selects the damn
+content.  This is such disgusting reprehensible behavior that I would
+not be surprised if its existence is evidence that Chrome developers
+are operating as moles inside the Firefox organization.
+
+Thank ioctl for the work of [[gh:SebastianSimon/firefox-omni-tweaks]].
+Running this nicely written bash script will munge some ~omni.ja~ files
+in the FF install to undo the mess.
+
+#+begin_example
+❯ wget -O scripts/fix-firefox-omni 'https://raw.githubusercontent.com/SebastianSimon/firefox-omni-tweaks/master/fixfx.sh'
+❯ chmod +x scripts/fix-firefox-omni
+❯ fix-firefox-omni -f /usr/lib/firefox-esr -o preventClickSelectsAll
+#+end_example
+
+Finally, restart FF and sigh with deep contentment.
+
+
+* Audio/Video
+
+** mpv
+
+I use ~mpv~ for just about all A/V.  I also try to make it run for YouTube and the like as it is less resource intensive than YT's web page on FF.  See the section [[Open]] below for how things are routed to mpv.  Calling 
+
+#+begin_example
+mpv --profile=yt <youtube-url>
+#+end_example
+
+Will invoke this section of =~/.config/mpv/mpv.conf=
+
+#+begin_example
+[yt]
+script-opts=ytdl_hook-ytdl_path=yt-dlp
+ytdl-format=137+251
+#+end_example
+
+This requires ~yt-dlp~ installed.  It also does not always work for reasons I do not understand.  Either YT does not have the formats and the command fails outright or YT sends data so damn slowly that the stream constantly pauses to buffer.  Outright failure is checked for in ~web-browser~ (see [[Open]] below) and the URL is fail-over dispatched to ~x-www-browser~.
 
 * Source
   :PROPERTIES:
@@ -723,7 +765,8 @@ Then finish with
   # stow rofi-1.6.1
 #+end_example
 
-** CMake
+** Common source setup reminders
+*** CMake
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-CMake
    :END:
@@ -737,7 +780,7 @@ Then finish with
   $ cmake --build . --target install
 #+end_example
 
-** autoconf
+*** autoconf
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-autoconf
    :END:
@@ -751,19 +794,7 @@ Then finish with
   $ make install
 #+end_example
 
-
-** Spack
-   :PROPERTIES:
-   :CUSTOM_ID: 2021-02-09-Spack
-   :END:
-
-
-** Nix
-   :PROPERTIES:
-   :CUSTOM_ID: 2021-02-09-Nix
-   :END:
-
-** Python
+*** Python
    :PROPERTIES:
    :CUSTOM_ID: 2021-02-09-Python
    :END:
@@ -785,6 +816,23 @@ A lesser way but which does not require ~direnv~
   $ source venv/bin/activate
   $ pip install -e .
 #+end_example
+
+
+** Things I explicitly don't use
+
+*** Spack
+   :PROPERTIES:
+   :CUSTOM_ID: 2021-02-09-Spack
+   :END:
+
+Spack is great for managing complex and shared software deployments.  From time to time I have used it for managing personal software.  That has been modus hiatus for a while due to various minor annoyances related to personal usage.  A lot has changed with Spack since then and I have some plans to revisit this approach. 
+
+*** Nix/Guix
+   :PROPERTIES:
+   :CUSTOM_ID: 2021-02-09-Nix-Guix
+   :END:
+
+I have used Nix and Guix to provide add-on environments.  They always start out great but turn horrible.  In part, I just can not get a handle on the Nix language.  Guix's use of guile is much better but it's like learning Emacs, it's a deep rabbit hole.  Like Spack, this remains an anti-use.
 
 
 * Photos
@@ -836,8 +884,7 @@ tbd. git + big files + sync rules + metadata.  Used for photos and other.
 
 ** Pass
 
-I use [[https://git.zx2c4.com/password-store/about/][pass]].  I almost never share the same password for different endpoints and almost always use high character random passwords which I never bother to remember.
-
+I use [[https://git.zx2c4.com/password-store/about/][pass]] to manage my passwords and distribute them via a private repo in my personal Gitea instance.  I almost never use the same password for different endpoints and almost always use high character random passwords which I never bother to remember.  ~pass~ makes that possible and easy.
 
 
 * Time
@@ -896,9 +943,38 @@ I have a [[https://superuser.com/a/1397116][hacked scrip]] to help me with timez
   Japan         22  23  24  25  26  27  28  29  30  31  32  33  34 (+14)
 #+end_example
 
+I've since redone this in Python at [[gh:brettviren/titome]]
+
+#+begin_example
+❯ titome
+                         today: Friday 11/26 09:00 (2 hours ago)                         
+┏━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃ local ┃  9:00 ┃ 10:00 ┃ 11:00 ┃ 12:00 ┃ 13:00 ┃ 14:00 ┃ 15:00 ┃ 16:00 ┃ 17:00 ┃ 18:00 ┃
+┡━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ LBNL  │  6:00 │  7:00 │  8:00 │  9:00 │ 10:00 │ 11:00 │ 12:00 │ 13:00 │ 14:00 │ 15:00 │
+│ FNAL  │  8:00 │  9:00 │ 10:00 │ 11:00 │ 12:00 │ 13:00 │ 14:00 │ 15:00 │ 16:00 │ 17:00 │
+│ BNL   │  9:00 │ 10:00 │ 11:00 │ 12:00 │ 13:00 │ 14:00 │ 15:00 │ 16:00 │ 17:00 │ 18:00 │
+│ RAL   │ 14:00 │ 15:00 │ 16:00 │ 17:00 │ 18:00 │ 19:00 │ 20:00 │ 21:00 │ 22:00 │ 23:00 │
+│ CERN  │ 15:00 │ 16:00 │ 17:00 │ 18:00 │ 19:00 │ 20:00 │ 21:00 │ 22:00 │ 23:00 │  0:00 │
+│ KEK   │ 23:00 │  0:00 │  1:00 │  2:00 │  3:00 │  4:00 │  5:00 │  6:00 │  7:00 │  8:00 │
+└───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┘
+#+end_example
+
 ** Meetings
 
 Most people around me use "doodle" which is kind of a pain. [[https://www.when2meet.com/][when2meet]] is far superior.
+
+
+* Open
+
+The whole story surrounding opening files is insane, especially once one leaves the manicured gardens of big name DEs (Gnome and the like).  Thankfully others are as fed up as me and have come up with good solutions.  Central to mine is using [[gh:chmln/handlr]].  I call ~handlr open~ through my own ~open~ script which I used on the CLI or set to be called from kitty, liferea, etc.
+
+Via ~handlr~ commands I manually set an explicit mapping from mime types to ~.desktop~ files.  The former in =~/.config/mimeapps.list= and the latter under =~/.local/share/applications/=.  All of this goes into the ~vcsh~ repo ~dots~.
+
+The ~handlr open~ call can also handle URLs which I map to a ~web-browser.desktop~ that simply calls my ~web-browser~ script and that dispatches the URL to an application based on pattern matching.  Some of the more used dispatching:
+
+- video looking URLs go to ~mpv --profile=yt~ (see section on ~mpv~)
+- twitter looking URLs get rewritten to nitter.net
 
 * Todo
 

@@ -36,3 +36,8 @@ Build to local web area and the github submodule
 #+begin_example
   ./build.sh
 #+end_example
+
+* Configure
+
+** Org
+
