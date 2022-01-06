@@ -7,9 +7,10 @@
 
   <ul>
   {{ range .Site.Sections.ByLastmod }}
-  {{ range first 1 .Pages.ByLastmod }} 
+  {{ range last 1 .Pages.ByLastmod }} 
   <li>
-    <a href="/{{ .Section }}"><em>{{ .Section }}</em></a>: <b>{{ .Title }}</b> ({{ .Date.Format "2006-01-02" }}) {{.Summary}}
+    Most recent in <a href="/{{ .Section }}"><em>{{ .Section }}</em></a>:<p>
+      <a href="{{ .RelPermalink }}"><b>{{ .Title }}</b></a> ({{ .Date.Format "2006-01-02" }}) {{.Summary}}
   </li>
   {{ end }}
   {{ end }}
